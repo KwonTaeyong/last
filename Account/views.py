@@ -6,8 +6,6 @@ from .serializers import AccountSerializer
 from .models import *
 
 # Create your views here.
-
-# 모든 회원 리스트 출력 및 입력
 @csrf_exempt
 def AccountList(request):
     if request.method == 'GET':
@@ -24,13 +22,8 @@ def AccountList(request):
         return JsonResponse(serializer.errors, status=400)
 
 
-
-# 하나의 회원 정보에 접근 입출력, 수정 및 삭제
 @csrf_exempt
 def Account_target(request, pk):
-    """
-    Retrieve, update or delete a code Account.
-    """
     try:
         target = Account.objects.get(pk=pk)
     except target.DoesNotExist:
@@ -51,3 +44,18 @@ def Account_target(request, pk):
     elif request.method == 'DELETE':
         target.delete()
         return HttpResponse(status=204)
+
+@csrf_exempt
+def BiecpsList(request):
+    if request.method == 'GET':
+        query_set = Account.BicepsCurl.objects.all()
+        serializer = AccountSerializer(query_set, many=True)
+        return JsonResponse(serializer.data, safe=False)
+        return HttpResponse(query_set)
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = AccountSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
