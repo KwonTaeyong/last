@@ -2,16 +2,17 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
-from .serializers import AccountSerializer
+from .serializers import AccountSerializer, BicepsSerializer, SquatSerializer
 from .models import *
+
 
 # Create your views here.
 @csrf_exempt
 def AccountList(request):
     if request.method == 'GET':
         query_set = Account.objects.all()
-        serializer = AccountSerializer(query_set, many=True)  # 아래와 세트로
-        return JsonResponse(serializer.data, safe=False)      # json형식으로 출력
+        serializer = AccountSerializer(query_set, many=True)
+        return JsonResponse(serializer.data, safe=False)
         return HttpResponse(query_set)
     elif request.method == 'POST':
         data = JSONParser().parse(request)
@@ -20,6 +21,12 @@ def AccountList(request):
             serializer.save()
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
+
+
+
+
+
+
 
 
 @csrf_exempt
@@ -45,16 +52,33 @@ def Account_target(request, pk):
         target.delete()
         return HttpResponse(status=204)
 
+
 @csrf_exempt
-def BiecpsList(request):
+def BicepsList(request):
     if request.method == 'GET':
-        query_set = Account.BicepsCurl.objects.all()
-        serializer = AccountSerializer(query_set, many=True)
+        query_set = BicepsCurl.objects.all()
+        serializer = BicepsSerializer(query_set, many=True)
         return JsonResponse(serializer.data, safe=False)
         return HttpResponse(query_set)
     elif request.method == 'POST':
         data = JSONParser().parse(request)
-        serializer = AccountSerializer(data=data)
+        serializer = BicepsSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
+
+
+@csrf_exempt
+def SquatList(request):
+    if request.method == 'GET':
+        query_set = Squat.objects.all()
+        serializer = SquatSerializer(query_set, many=True)
+        return JsonResponse(serializer.data, safe=False)
+        return HttpResponse(query_set)
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = SquatSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=201)

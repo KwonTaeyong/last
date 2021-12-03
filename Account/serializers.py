@@ -9,8 +9,13 @@ class AccountSerializer(serializers.ModelSerializer):
         
 class BicepsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Account.BicepsCurl
-        fields = ['pid', 'Rcount', 'Lcount', 'times', 'day', 'title']
+        model = BicepsCurl
+        fields = ['pid', 'count', 'count2', 'times', 'day', 'title']
+
+class SquatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BicepsCurl
+        fields = ['pid', 'total_time', 'count']
 
 
 
