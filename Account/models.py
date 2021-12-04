@@ -27,16 +27,18 @@ class Account(models.Model):
 class BicepsCurl(models.Model):
     pid = models.CharField(max_length=255)
 
-    count = models.IntegerField(null=True)
-    count2 = models.IntegerField(null=True)
+    count = models.IntegerField()
+    count1 = models.IntegerField()
+    count2 = models.IntegerField()
+
+    sum_times = models.IntegerField
+    sum_count = models.IntegerField
 
     times = models.FloatField(max_length=255)
     title = models.CharField(max_length=255)
 
     day = models.CharField(max_length=255)
-
-    total_count = models.IntegerField
-    total_time = models.FloatField
+    # total_time = models.FloatField()
 
     # def __str__(self):
     #     return "count:"+self.Lcount+" count2:"+self.Rcount+" times:"+self.times+" title:"+self.title+" day:"+self.day
@@ -48,7 +50,7 @@ class BicepsCurl(models.Model):
 class Squat(models.Model):
     pid = models.CharField(max_length=20)
     total_time = models.CharField(max_length=20)
-    count = models.IntegerField
+    count = models.IntegerField()
     # created = models.DateTimeField(auto_now_add=True)
     #
     # class Meta:
@@ -65,10 +67,6 @@ class PushUp(models.Model):
         ordering = ['created']
 
 
-
-
-
-
-
-
+class TotalNumber(models.Model):
+    pid = models.CharField(max_length=20)
 
