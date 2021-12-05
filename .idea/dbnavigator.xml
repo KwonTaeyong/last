@@ -29,7 +29,7 @@
         <schema name="main" object-types="table, view" />
       </connection>
       <connection connection-id="621ad02f-d78e-446c-b681-79540396e2fa">
-        <schema name="main" object-types="table, view, constraint, index, column, dataset trigger" />
+        <schema name="main" object-types="table, view" />
       </connection>
     </loaded-nodes>
   </component>

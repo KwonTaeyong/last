@@ -1,10 +1,12 @@
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.db.models import Sum
+from django.shortcuts import get_object_or_404
+from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework.parsers import JSONParser
 
-from .serializers import AccountSerializer, BicepsSerializer, SquatSerializer, BicepsTotalSerializer
+from .serializers import AccountSerializer, BicepsSerializer, SquatSerializer
 from .models import *
 
 
@@ -13,7 +15,7 @@ from .models import *
 @csrf_exempt
 def register_list(request):
 
-    # 회원 목록을 확인하기 위함(관리자용)
+    # 회원목록 확인
     if request.method == 'GET':
         query_set = Account.objects.all()
         serializer = AccountSerializer(query_set, many=True)
@@ -22,19 +24,19 @@ def register_list(request):
     # 회원가입
     elif request.method == 'POST':
         data = JSONParser().parse(request)
-        # 동일한 아이디가 존재하면 존재한다고 이야기 해주기
+        # 이미 존재하는 ID
         if Account.objects.filter(pid=data['pid']).exists():
             msg = dict(
                 msg="Already Exist ID"
             )
             return JsonResponse(msg, status=400)
-
+        # 이미 존재하는 nickName
         if Account.objects.filter(nick_name=data['nick_name']).exists():
             msg = dict(
                 msg="Already Exists NickName"
             )
 
-        # 동일한 아이디가 존재하지 않는다면 시리얼라이저를 통해서 가입시키기
+        # 직렬화
         serializer = AccountSerializer(data=data)
 
         if serializer.is_valid():
@@ -45,34 +47,19 @@ def register_list(request):
 
 @csrf_exempt
 def user_login(request):
+    data = JSONParser().parse(request)
+    account = data['pid']
+    password = data['pwd']
+
+    try:
+        target = Account.objects.get(pid=account)
+    except Account.DoesNotExist:
+        return JsonResponse("Check your ID", safe=False, status=400)
+
     if request.method == 'POST':
-
-        data = JSONParser().parse(request)
-        print(data)
-
-        account = data['pid']
-        print(account)
-        print(type(account))
-        password = data['pwd']
-        print(password)
-        print(type(password))
-
-
-        list_of_PID = Account.objects.values("pid")
-        print(list_of_PID)
-
-        # posted_inform = Account.objects.values("pid", "pwd").get(pid=account)
         posted_inform = Account.objects.values("pid", "pwd").get(pid=account)
-        print(type(posted_inform))
         posted_account = posted_inform['pid']
-        print(type(posted_account))
         posted_password = posted_inform['pwd']
-        print(type(posted_password))
-
-        try:
-            target = Account.objects.get(pid=account)
-        except target.DoesNotExist:
-            return HttpResponse("Check your ID", status=400)
 
         if account == posted_account and password == posted_password:
             return JsonResponse("Login Success", safe=False, status=200)
@@ -142,25 +129,23 @@ def total_biceps(request):
     if request.method == 'GET':
 
         data = JSONParser().parse(request)
-        print(data)
+
         # Request를 파싱해서 pid만 뽑아내서 변수로 저장
         # account는 요청자의 pid
         pid_get = data['pid']
-        print(pid_get)
+
         # Reuqset를 파싱해서 요청받은 데이터 내용의 이름을 저장
         type_get = data['type']
-        print(type_get)
+
         # 요청받은 데이터가 COUNT의 합계일 경우
         if type_get == 'count':
             sum_count = BicepsCurl.objects.filter(pid=pid_get).aggregate(Sum('count'))
-            print(sum_count)
             # serializer = BicepsTotalSerializer(sum_count, many=True)
             # print(serializer)
             return JsonResponse(sum_count['count__sum'], safe=False)
         # 요청받은 데이터가 TIMES의 합계일 경우
         elif type_get == 'times':
             sum_times = BicepsCurl.objects.filter(pid=pid_get).aggregate(Sum('times'))
-            print(sum_times)
             # serializer = BicepsTotalSerializer(sum_times, many=True)
             # print(sum_times)
             return JsonResponse(sum_times['times__sum'], safe=False)
