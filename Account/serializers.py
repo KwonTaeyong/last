@@ -12,10 +12,12 @@ class BicepsSerializer(serializers.ModelSerializer):
         model = BicepsCurl
         fields = ['pid', 'count', 'count1', 'count2', 'times', 'day', 'title']
 
+
 class SquatSerializer(serializers.ModelSerializer):
     class Meta:
         model = BicepsCurl
         fields = ['pid', 'sum_times', 'sum_count']
+
 
 class BicepsTotalSerializer(serializers.ModelSerializer):
     class Meta:

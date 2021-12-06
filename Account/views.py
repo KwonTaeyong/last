@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework.parsers import JSONParser
 
-from .serializers import AccountSerializer, BicepsSerializer, SquatSerializer
+from .serializers import AccountSerializer, BicepsSerializer, SquatSerializer, BicepsTotalSerializer
 from .models import *
 
 
@@ -177,6 +177,7 @@ def squat_total(request):
     else:
         return JsonResponse("Request Method Error", safe=False, status=400)
 
+
 @csrf_exempt
 def pushup_list(request):
     if request.method == 'GET':
@@ -190,6 +191,31 @@ def pushup_list(request):
             serializer.save()
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
+
+
+# @csrf_exempt
+# def pushup_total(request):
+#     if request.method == 'POST':
+#
+#         data = JSONParser().parse(request)
+#
+#         # Request를 파싱해서 pid만 뽑아내서 변수로 저장
+#         # account는 요청자의 pid
+#         pid_get = data['pid']
+#
+#         # Reuqset를 파싱해서 요청받은 데이터 내용의 이름을 저장
+#         type_get = data['type']
+#
+#         # 요청받은 데이터가 COUNT의 합계일 경우
+#         if type_get == 'count':
+#             sum_count = PushUp.objects.filter(pid=pid_get).aggregate(Sum('count'))
+#             return JsonResponse(sum_count['count__sum'], safe=False)
+#         # 요청받은 데이터가 TIMES의 합계일 경우
+#         elif type_get == 'times':
+#             sum_times = PushUp.objects.filter(pid=pid_get).aggregate(Sum('times'))
+#             return JsonResponse(sum_times['times__sum'], safe=False)
+#     else:
+#         return JsonResponse("Request Method Error", safe=False, status=400)
 
 
 @csrf_exempt
@@ -207,11 +233,15 @@ def pushup_total(request):
 
         # 요청받은 데이터가 COUNT의 합계일 경우
         if type_get == 'count':
-            sum_count = PushUp.objects.filter(pid=pid_get).aggregate(Sum('count'))
-            return JsonResponse(sum_count['count__sum'], safe=False)
+            before_sum_count = PushUp.objects.filter(pid=pid_get).aggregate(Sum('count'))
+            sum_count = before_sum_count['count__sum']
+            serializer = BicepsTotalSerializer(sum_count, many=True)
+            return serializer.data(sum_count, safe=False)
         # 요청받은 데이터가 TIMES의 합계일 경우
         elif type_get == 'times':
-            sum_times = PushUp.objects.filter(pid=pid_get).aggregate(Sum('times'))
-            return JsonResponse(sum_times['times__sum'], safe=False)
+            before_sum_times = PushUp.objects.filter(pid=pid_get).aggregate(Sum('times'))
+            sum_times = before_sum_times['times__sum']
+            serializer = BicepsTotalSerializer(sum_times, many=True)
+            return JsonResponse(serializer.data, safe=False)
     else:
         return JsonResponse("Request Method Error", safe=False, status=400)
