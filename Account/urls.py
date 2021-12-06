@@ -3,11 +3,11 @@ from django.urls import path
 from Account import views
 
 urlpatterns = [
-    path('register-list/', views.register_list),
+    path('user-list/', views.user_list),
     path('user-login/', views.user_login),
-    path('biceps-list/', views.BicepsList),
-    path('biceps-total/', views.total_biceps),
-    path('squat-list/', views.SquatList),
-    # path('squat-total/', views.total_squat),
-    path('TargetAccount-Admin-For/<int:pk>/', views.Account_target),
+    path('user-target/<int:pk>/', views.user_target),
+    path('biceps-list/', views.biceps_list),
+    path('biceps-total/', views.biceps_total),
+    path('squat-list/', views.squat_list),
+    path('squat-total/', views.squat_total),
 ]

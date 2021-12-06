@@ -13,7 +13,7 @@ from .models import *
 # Create your views here.
 # 회원가입 검증 기능 및 회원리스트 보기
 @csrf_exempt
-def register_list(request):
+def user_list(request):
 
     # 회원목록 확인
     if request.method == 'GET':
@@ -31,7 +31,7 @@ def register_list(request):
             )
             return JsonResponse(msg, status=400)
         # 이미 존재하는 nickName
-        if Account.objects.filter(nick_name=data['nick_name']).exists():
+        elif Account.objects.filter(nick_name=data['nick_name']).exists():
             msg = dict(
                 msg="Already Exists NickName"
             )
@@ -67,11 +67,11 @@ def user_login(request):
         if password != posted_password:
             return JsonResponse("Check your PASSWORD", safe=False, status=400)
     else:
-        return JsonResponse("Http Method Error", safe=False, status=400)
+        return JsonResponse("Request Method Error", safe=False, status=400)
 
 
 @csrf_exempt
-def Account_target(request, pk):
+def user_target(request, pk):
     try:
         target = Account.objects.get(pk=pk)
     except target.DoesNotExist:
@@ -95,7 +95,7 @@ def Account_target(request, pk):
 
 
 @csrf_exempt
-def BicepsList(request):
+def biceps_list(request):
     if request.method == 'GET':
         query_set = BicepsCurl.objects.all()
         serializer = BicepsSerializer(query_set, many=True)
@@ -110,23 +110,8 @@ def BicepsList(request):
 
 
 @csrf_exempt
-def SquatList(request):
-    if request.method == 'GET':
-        query_set = Squat.objects.all()
-        serializer = SquatSerializer(query_set, many=True)
-        return JsonResponse(serializer.data, safe=False)
-    elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = SquatSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
-
-
-@csrf_exempt
-def total_biceps(request):
-    if request.method == 'GET':
+def biceps_total(request):
+    if request.method == 'POST':
 
         data = JSONParser().parse(request)
 
@@ -149,19 +134,84 @@ def total_biceps(request):
             # serializer = BicepsTotalSerializer(sum_times, many=True)
             # print(sum_times)
             return JsonResponse(sum_times['times__sum'], safe=False)
-
-        # # ORM으로 요청자의 BicepsCurl 정보를 찾아온다
-        # sum_count = BicepsCurl.objects.filter(pid=pid_get).aggregate(Sum('count'))
-        # sum_times = BicepsCurl.objects.filter(pid=pid_get).aggregate(Sum('times'))
-        #
-        # dict_sum = {}
-        # dict_sum['sum_count'] = sum_count
-        # dict_sum['sum_times'] = sum_times
-        #
-        # # serializer에 넣고 돌린다 (??)
-        # serializer = TotalNumberSerializer(dict_sum, many=True)
-        # return JsonResponse(serializer.data, safe=False)
-
     else:
-        return JsonResponse("Http Method Error", safe=False, status=400)
+        return JsonResponse("Request Method Error", safe=False, status=400)
 
+
+@csrf_exempt
+def squat_list(request):
+    if request.method == 'GET':
+        query_set = Squat.objects.all()
+        serializer = SquatSerializer(query_set, many=True)
+        return JsonResponse(serializer.data, safe=False)
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = SquatSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
+
+
+@csrf_exempt
+def squat_total(request):
+    if request.method == 'POST':
+
+        data = JSONParser().parse(request)
+
+        # Request를 파싱해서 pid만 뽑아내서 변수로 저장
+        # account는 요청자의 pid
+        pid_get = data['pid']
+
+        # Reuqset를 파싱해서 요청받은 데이터 내용의 이름을 저장
+        type_get = data['type']
+
+        # 요청받은 데이터가 COUNT의 합계일 경우
+        if type_get == 'count':
+            sum_count = Squat.objects.filter(pid=pid_get).aggregate(Sum('count'))
+            return JsonResponse(sum_count['count__sum'], safe=False)
+        # 요청받은 데이터가 TIMES의 합계일 경우
+        elif type_get == 'times':
+            sum_times = Squat.objects.filter(pid=pid_get).aggregate(Sum('times'))
+            return JsonResponse(sum_times['times__sum'], safe=False)
+    else:
+        return JsonResponse("Request Method Error", safe=False, status=400)
+
+@csrf_exempt
+def pushup_list(request):
+    if request.method == 'GET':
+        query_set = PushUp.objects.all()
+        serializer = SquatSerializer(query_set, many=True)
+        return JsonResponse(serializer.data, safe=False)
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = SquatSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
+
+
+@csrf_exempt
+def pushup_total(request):
+    if request.method == 'POST':
+
+        data = JSONParser().parse(request)
+
+        # Request를 파싱해서 pid만 뽑아내서 변수로 저장
+        # account는 요청자의 pid
+        pid_get = data['pid']
+
+        # Reuqset를 파싱해서 요청받은 데이터 내용의 이름을 저장
+        type_get = data['type']
+
+        # 요청받은 데이터가 COUNT의 합계일 경우
+        if type_get == 'count':
+            sum_count = PushUp.objects.filter(pid=pid_get).aggregate(Sum('count'))
+            return JsonResponse(sum_count['count__sum'], safe=False)
+        # 요청받은 데이터가 TIMES의 합계일 경우
+        elif type_get == 'times':
+            sum_times = PushUp.objects.filter(pid=pid_get).aggregate(Sum('times'))
+            return JsonResponse(sum_times['times__sum'], safe=False)
+    else:
+        return JsonResponse("Request Method Error", safe=False, status=400)
