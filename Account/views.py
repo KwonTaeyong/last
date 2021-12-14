@@ -1,12 +1,12 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Sum
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework.parsers import JSONParser
 
-from .serializers import AccountSerializer, BicepsSerializer, SquatSerializer, BicepsTotalSerializer
+from .serializers import AccountSerializer, BicepsSerializer, SquatSerializer
 from .models import *
 
 
@@ -118,24 +118,57 @@ def biceps_total(request):
         # Request를 파싱해서 pid만 뽑아내서 변수로 저장
         # account는 요청자의 pid
         pid_get = data['pid']
+        result = {'Total_count': 0, 'Total_time': 0}
 
         # Reuqset를 파싱해서 요청받은 데이터 내용의 이름을 저장
-        type_get = data['type']
+        # 타입 필요 없이 둘을 세트로 묶을 것임
+        # type_get = data['type']
 
         # 요청받은 데이터가 COUNT의 합계일 경우
-        if type_get == 'count':
-            sum_count = BicepsCurl.objects.filter(pid=pid_get).aggregate(Sum('count'))
+        # if type_get == 'count':
+        # if문 주석처리 했으므로 아래 sum_count부터는 1탭 만큼 앞으로
+        sum_count = BicepsCurl.objects.filter(pid=pid_get).aggregate(Sum('count'))
+        sum_times = BicepsCurl.objects.filter(pid=pid_get).aggregate(Sum('times'))
+
+        result['Total_count'] = sum_count['count__sum']
+        result['Total_time'] = sum_times['times__sum']
             # serializer = BicepsTotalSerializer(sum_count, many=True)
             # print(serializer)
-            return JsonResponse(sum_count['count__sum'], safe=False)
+        return JsonResponse(result, safe=False)
+
         # 요청받은 데이터가 TIMES의 합계일 경우
-        elif type_get == 'times':
-            sum_times = BicepsCurl.objects.filter(pid=pid_get).aggregate(Sum('times'))
-            # serializer = BicepsTotalSerializer(sum_times, many=True)
-            # print(sum_times)
-            return JsonResponse(sum_times['times__sum'], safe=False)
-    else:
-        return JsonResponse("Request Method Error", safe=False, status=400)
+        # 타입 필요 없이 세트로 묶을 것이므로 일단 elif 모두 주석처리
+        # elif type_get == 'times':
+        #     sum_times = BicepsCurl.objects.filter(pid=pid_get).aggregate(Sum('times'))
+        #     # serializer = BicepsTotalSerializer(sum_times, many=True)
+        #     # print(sum_times)
+        #     return JsonResponse(sum_times['times__sum'], safe=False)
+    # else:
+    #     return JsonResponse("Request Method Error", safe=False, status=400)
+
+
+@csrf_exempt
+def biceps_recent(request):
+
+    data = JSONParser().parse(request)
+
+    pid_get = data['pid']
+    result = {'recent_count': 0, 'recent_time': 0, 'recent_day': 0}
+
+    pre_count = BicepsCurl.objects.filter(pid=pid_get).values('count').order_by('-created')
+    pre_time = BicepsCurl.objects.filter(pid=pid_get).values('times').order_by('-created')
+    pre_day = BicepsCurl.objects.filter(pid=pid_get).values('day').order_by('-created')
+
+    result['recent_count'] = pre_count[0]['count']
+    result['recent_time'] = pre_time[0]['times']
+    result['recent_day'] = pre_day[0]['day']
+
+    serializer = BicepsSerializer(data=result)
+    if serializer.is_valid():
+        serializer.save()
+        return JsonResponse(serializer.data, status=201)
+
+    return JsonResponse(result, safe=False)
 
 
 @csrf_exempt
@@ -159,23 +192,40 @@ def squat_total(request):
 
         data = JSONParser().parse(request)
 
-        # Request를 파싱해서 pid만 뽑아내서 변수로 저장
-        # account는 요청자의 pid
         pid_get = data['pid']
+        result = {'Total_count': 0, 'Total_time': 0}
 
-        # Reuqset를 파싱해서 요청받은 데이터 내용의 이름을 저장
-        type_get = data['type']
+        sum_count = Squat.objects.filter(pid=pid_get).aggregate(Sum('count'))
+        sum_times = Squat.objects.filter(pid=pid_get).aggregate(Sum('times'))
 
-        # 요청받은 데이터가 COUNT의 합계일 경우
-        if type_get == 'count':
-            sum_count = Squat.objects.filter(pid=pid_get).aggregate(Sum('count'))
-            return JsonResponse(sum_count['count__sum'], safe=False)
-        # 요청받은 데이터가 TIMES의 합계일 경우
-        elif type_get == 'times':
-            sum_times = Squat.objects.filter(pid=pid_get).aggregate(Sum('times'))
-            return JsonResponse(sum_times['times__sum'], safe=False)
-    else:
-        return JsonResponse("Request Method Error", safe=False, status=400)
+        result['Total_count'] = sum_count['count__sum']
+        result['Total_time'] = sum_times['times__sum']
+
+        return JsonResponse(result, safe=False)
+
+
+@csrf_exempt
+def squat_recent(request):
+
+    data = JSONParser().parse(request)
+
+    pid_get = data['pid']
+    result = {'recent_count': 0, 'recent_time': 0, 'recent_day': 0}
+
+    pre_count = Squat.objects.filter(pid=pid_get).values('count').order_by('-created')
+    pre_time = Squat.objects.filter(pid=pid_get).values('times').order_by('-created')
+    pre_day = Squat.objects.filter(pid=pid_get).values('day').order_by('-created')
+
+    result['recent_count'] = pre_count[0]['count']
+    result['recent_time'] = pre_time[0]['times']
+    result['recent_day'] = pre_day[0]['day']
+
+    serializer = BicepsSerializer(data=result)
+    if serializer.is_valid():
+        serializer.save()
+        return JsonResponse(serializer.data, status=201)
+
+    return JsonResponse(result, safe=False)
 
 
 @csrf_exempt
@@ -193,55 +243,56 @@ def pushup_list(request):
         return JsonResponse(serializer.errors, status=400)
 
 
-# @csrf_exempt
-# def pushup_total(request):
-#     if request.method == 'POST':
-#
-#         data = JSONParser().parse(request)
-#
-#         # Request를 파싱해서 pid만 뽑아내서 변수로 저장
-#         # account는 요청자의 pid
-#         pid_get = data['pid']
-#
-#         # Reuqset를 파싱해서 요청받은 데이터 내용의 이름을 저장
-#         type_get = data['type']
-#
-#         # 요청받은 데이터가 COUNT의 합계일 경우
-#         if type_get == 'count':
-#             sum_count = PushUp.objects.filter(pid=pid_get).aggregate(Sum('count'))
-#             return JsonResponse(sum_count['count__sum'], safe=False)
-#         # 요청받은 데이터가 TIMES의 합계일 경우
-#         elif type_get == 'times':
-#             sum_times = PushUp.objects.filter(pid=pid_get).aggregate(Sum('times'))
-#             return JsonResponse(sum_times['times__sum'], safe=False)
-#     else:
-#         return JsonResponse("Request Method Error", safe=False, status=400)
-
-
 @csrf_exempt
 def pushup_total(request):
     if request.method == 'POST':
 
         data = JSONParser().parse(request)
 
-        # Request를 파싱해서 pid만 뽑아내서 변수로 저장
-        # account는 요청자의 pid
         pid_get = data['pid']
+        result = {'Total_count': 0, 'Total_time': 0}
 
-        # Reuqset를 파싱해서 요청받은 데이터 내용의 이름을 저장
-        type_get = data['type']
+        sum_count = PushUp.objects.filter(pid=pid_get).aggregate(Sum('count'))
+        sum_times = PushUp.objects.filter(pid=pid_get).aggregate(Sum('times'))
 
-        # 요청받은 데이터가 COUNT의 합계일 경우
-        if type_get == 'count':
-            before_sum_count = PushUp.objects.filter(pid=pid_get).aggregate(Sum('count'))
-            sum_count = before_sum_count['count__sum']
-            serializer = BicepsTotalSerializer(sum_count, many=True)
-            return serializer.data(sum_count, safe=False)
-        # 요청받은 데이터가 TIMES의 합계일 경우
-        elif type_get == 'times':
-            before_sum_times = PushUp.objects.filter(pid=pid_get).aggregate(Sum('times'))
-            sum_times = before_sum_times['times__sum']
-            serializer = BicepsTotalSerializer(sum_times, many=True)
-            return JsonResponse(serializer.data, safe=False)
-    else:
-        return JsonResponse("Request Method Error", safe=False, status=400)
+        result['Total_count'] = sum_count['count__sum']
+        result['Total_time'] = sum_times['times__sum']
+
+        return JsonResponse(result, safe=False)
+
+
+@csrf_exempt
+def pushup_recent(request):
+
+    data = JSONParser().parse(request)
+
+    pid_get = data['pid']
+    result = {'recent_count': 0, 'recent_time': 0, 'recent_day': 0}
+
+    pre_count = PushUp.objects.filter(pid=pid_get).values('count').order_by('-created')
+    pre_time = PushUp.objects.filter(pid=pid_get).values('times').order_by('-created')
+    pre_day = PushUp.objects.filter(pid=pid_get).values('day').order_by('-created')
+
+    result['recent_count'] = pre_count[0]['count']
+    result['recent_time'] = pre_time[0]['times']
+    result['recent_day'] = pre_day[0]['day']
+
+    serializer = BicepsSerializer(data=result)
+    if serializer.is_valid():
+        serializer.save()
+        return JsonResponse(serializer.data, status=201)
+
+    return JsonResponse(result, safe=False)
+
+
+@csrf_exempt
+def example(request):
+    if request.method == 'POST' or 'GET':
+        print(request)
+        queryset = BicepsCurl.objects.filter(pid='권드래곤').order_by('-created')
+
+        context = {
+            'queryset': queryset,
+        }
+
+        return render(request, 'Account/example.html', context)

@@ -2,10 +2,10 @@ from django.db import models
 
 # Create your models here.
 
+
 class Account(models.Model):
     pid = models.CharField(max_length=30)
     pwd = models.CharField(max_length=30)
-    nick_name = models.CharField(max_length=40)
 
     created = models.DateTimeField(null=True, auto_now_add=True)
 
@@ -31,8 +31,11 @@ class BicepsCurl(models.Model):
     day = models.CharField(null=True, max_length=255)
     created = models.DateTimeField(null=True, auto_now_add=True)
 
-    # def __str__(self):
-    #     return "count:"+self.Lcount+" count2:"+self.Rcount+" times:"+self.times+" title:"+self.title+" day:"+self.day
+    # result = models.CharField(null=True, max_length=255)
+
+    def __str__(self):
+        return ("TotalCount:"+str(self.count)+" LCount:"+str(self.count1)+
+                " RCount:"+str(self.count2)+" time:"+str(self.times)+" day:"+self.day)
 
     class Meta:
         ordering = ['created']
@@ -51,6 +54,9 @@ class Squat(models.Model):
     day = models.CharField(null=True, max_length=255)
     created = models.DateTimeField(null=True, auto_now_add=True)
 
+    def __str__(self):
+        return "Count:"+str(self.count)+" Time:"+str(self.times)+" Date:"+self.day
+
     class Meta:
         ordering = ['created']
 
@@ -67,6 +73,9 @@ class PushUp(models.Model):
     times = models.FloatField(null=True, max_length=255)
     day = models.CharField(null=True, max_length=255)
     created = models.DateTimeField(null=True, auto_now_add=True)
+
+    def __str__(self):
+        return "Count:"+str(self.count)+" Time:"+str(self.times)+" Date:"+self.day
 
     class Meta:
         ordering = ['created']
