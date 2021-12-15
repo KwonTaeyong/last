@@ -18,7 +18,8 @@ class BicepsSerializer(serializers.ModelSerializer):
 class SquatSerializer(serializers.ModelSerializer):
     class Meta:
         model = Squat
-        fields = ['pid', 'count', 'times', 'day', 'title', 'created']
+        fields = '__all__'
+        # fields = ['pid', 'count', 'times', 'day', 'title', 'created']
 
 
 class PushUpSerializer(serializers.ModelSerializer):

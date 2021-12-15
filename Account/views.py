@@ -381,7 +381,7 @@ def biceps_entire(request):
         data = JSONParser().parse(request)
         pid_get = data['pid']
 
-        queryset = BicepsCurl.objects.filter(pid=pid_get)
+        queryset = BicepsCurl.objects.filter(pid=pid_get).order_by('-created')
 
         serializer = BicepsSerializer(queryset, many=True)
 
@@ -401,7 +401,7 @@ def squat_entire(request):
         data = JSONParser().parse(request)
         pid_get = data['pid']
 
-        queryset = Squat.objects.filter(pid=pid_get)
+        queryset = Squat.objects.filter(pid=pid_get).order_by('-created')
 
         serializer = SquatSerializer(queryset, many=True)
 
@@ -421,7 +421,7 @@ def pushup_entire(request):
         data = JSONParser().parse(request)
         pid_get = data['pid']
 
-        queryset = PushUp.objects.filter(pid=pid_get)
+        queryset = PushUp.objects.filter(pid=pid_get).order_by('-created')
 
         serializer = PushUpSerializer(queryset, many=True)
 
@@ -432,3 +432,32 @@ def pushup_entire(request):
 
     else:
         return JsonResponse("Check Request", safe=False, status=400)
+
+
+@csrf_exempt
+def record_deleter(request):
+    if request.method == 'DELETE':
+
+        data = JSONParser().parse(request)
+
+        pid_get = data['pid']
+        day_get = data['day']
+        count_get = data['count']
+        exercise = data['title']
+
+        if exercise == 'BicepsCurl':
+            BicepsCurl.objects.filter(pid=pid_get).filter(count=count_get).filter(day__contains=day_get).delete()
+            return HttpResponse("Successfully deleted", status=201)
+
+        if exercise == 'Squat':
+            Squat.objects.filter(pid=pid_get).filter(count=count_get).filter(day__contains=day_get).delete()
+            return HttpResponse("Successfully deleted", status=201)
+
+        if exercise == 'PushUp':
+            PushUp.objects.filter(pid=pid_get).filter(count=count_get).filter(day__contains=day_get).delete()
+            return HttpResponse("Successfully deleted", status=201)
+
+
+        # if exercise.objects.filter(pid=pid_get).filter(day=day_get).filter(times=times_get).filter(count=count_get).exists():
+        #     exercise.objects.filter(pid=pid_get).filter(day=day_get).filter(times=times_get).filter(count=count_get).delete()
+        #     return JsonResponse("Successfully Done", safe=False, status=201)

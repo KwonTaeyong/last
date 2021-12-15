@@ -21,5 +21,7 @@ urlpatterns = [
     path('pushup-total/', views.pushup_total),
     path('pushup-recent/', views.pushup_recent),
     path('pushup-entire/', views.pushup_entire),
+
+    path('record-del/', views.record_deleter),
     # path('example/', views.example)
 ]
