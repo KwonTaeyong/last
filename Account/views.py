@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework.parsers import JSONParser
 
-from .serializers import AccountSerializer, BicepsSerializer, SquatSerializer
+from .serializers import AccountSerializer, BicepsSerializer, SquatSerializer, PushUpSerializer
 from .models import *
 
 
@@ -67,7 +67,7 @@ def user_login(request):
         if password != posted_password:
             return JsonResponse("Check your PASSWORD", safe=False, status=400)
     else:
-        return JsonResponse("Request Method Error", safe=False, status=400)
+        return JsonResponse("Check Request", safe=False, status=400)
 
 
 @csrf_exempt
@@ -155,13 +155,38 @@ def biceps_recent(request):
     pid_get = data['pid']
     result = {'recent_count': 0, 'recent_time': 0, 'recent_day': 0}
 
-    pre_count = BicepsCurl.objects.filter(pid=pid_get).values('count').order_by('-created')
-    pre_time = BicepsCurl.objects.filter(pid=pid_get).values('times').order_by('-created')
-    pre_day = BicepsCurl.objects.filter(pid=pid_get).values('day').order_by('-created')
+    if len(BicepsCurl.objects.filter(pid=pid_get).values('count').order_by('-created')) == 0:
+        result['recent_count'] = 0
+    else:
+        result['recent_count'] = BicepsCurl.objects.filter(pid=pid_get).values('count').order_by('-created')[0]['count']
 
-    result['recent_count'] = pre_count[0]['count']
-    result['recent_time'] = pre_time[0]['times']
-    result['recent_day'] = pre_day[0]['day']
+    if len(BicepsCurl.objects.filter(pid=pid_get).values('times').order_by('-created')) == 0:
+        result['recent_time'] = 0
+    else:
+        result['recent_time'] = BicepsCurl.objects.filter(pid=pid_get).values('times').order_by('-created')[0]['times']
+
+    if len(BicepsCurl.objects.filter(pid=pid_get).values('day').order_by('-created')) == 0:
+        result['recent_day'] = 0
+    else:
+        result['recent_day'] = BicepsCurl.objects.filter(pid=pid_get).values('day').order_by('-created')[0]['day']
+
+    # data = JSONParser().parse(request)
+    #
+    # pid_get = data['pid']
+    # result = {'recent_count': 0, 'recent_time': 0, 'recent_day': 0}
+    #
+    # pre_count = BicepsCurl.objects.filter(pid=pid_get).values('count').order_by('-created')
+    # pre_time = BicepsCurl.objects.filter(pid=pid_get).values('times').order_by('-created')
+    # pre_day = BicepsCurl.objects.filter(pid=pid_get).values('day').order_by('-created')
+    #
+    # result['recent_count'] = pre_count[0]['count']
+    # result['recent_time'] = pre_time[0]['times']
+    # result['recent_day'] = pre_day[0]['day']
+    #
+    # serializer = BicepsSerializer(data=result)
+    # if serializer.is_valid():
+    #     serializer.save()
+    #     return JsonResponse(serializer.data, status=201)
 
     serializer = BicepsSerializer(data=result)
     if serializer.is_valid():
@@ -195,11 +220,21 @@ def squat_total(request):
         pid_get = data['pid']
         result = {'Total_count': 0, 'Total_time': 0}
 
-        sum_count = Squat.objects.filter(pid=pid_get).aggregate(Sum('count'))
-        sum_times = Squat.objects.filter(pid=pid_get).aggregate(Sum('times'))
+        # try:
+        #     sum_count = Squat.objects.get(pid=pid_get).aggregate(Sum('count'))
+        # except Squat.DoesNotExist:
+        #     result['Total_count'] = 0
+        #
+        # try:
+        #     sum_times = Squat.objects.get(pid=pid_get).aggregate(Sum('times'))
+        # except Squat.DoesNotExist:
+        #     result['Total_time'] = 0
 
-        result['Total_count'] = sum_count['count__sum']
-        result['Total_time'] = sum_times['times__sum']
+        sum_count = Squat.objects.filter(pid=pid_get).aggregate(Sum('count'))['count__sum'] or 0
+        sum_times = Squat.objects.filter(pid=pid_get).aggregate(Sum('times'))['times__sum'] or 0
+
+        result['Total_count'] = sum_count
+        result['Total_time'] = sum_times
 
         return JsonResponse(result, safe=False)
 
@@ -212,13 +247,32 @@ def squat_recent(request):
     pid_get = data['pid']
     result = {'recent_count': 0, 'recent_time': 0, 'recent_day': 0}
 
-    pre_count = Squat.objects.filter(pid=pid_get).values('count').order_by('-created')
-    pre_time = Squat.objects.filter(pid=pid_get).values('times').order_by('-created')
-    pre_day = Squat.objects.filter(pid=pid_get).values('day').order_by('-created')
+    if len(Squat.objects.filter(pid=pid_get).values('count').order_by('-created')) == 0:
+        result['recent_count'] = 0
+    else:
+        result['recent_count'] = Squat.objects.filter(pid=pid_get).values('count').order_by('-created')[0]['count']
 
-    result['recent_count'] = pre_count[0]['count']
-    result['recent_time'] = pre_time[0]['times']
-    result['recent_day'] = pre_day[0]['day']
+    if len(Squat.objects.filter(pid=pid_get).values('times').order_by('-created')) == 0:
+        result['recent_time'] = 0
+    else:
+        result['recent_time'] = Squat.objects.filter(pid=pid_get).values('times').order_by('-created')[0]['times']
+
+    if len(Squat.objects.filter(pid=pid_get).values('day').order_by('-created')) == 0:
+        result['recent_day'] = 0
+    else:
+        result['recent_day'] = Squat.objects.filter(pid=pid_get).values('day').order_by('-created')[0]['day']
+
+    # pre_count = Squat.objects.filter(pid=pid_get).values('count').order_by('-created')[0]['count']
+    # pre_time = Squat.objects.filter(pid=pid_get).values('times').order_by('-created') or 0
+    # pre_day = Squat.objects.filter(pid=pid_get).values('day').order_by('-created') or 0
+
+    # result['recent_count'] = pre_count[0]['count']
+    # result['recent_time'] = pre_time[0]['times']
+    # result['recent_day'] = pre_day[0]['day']
+
+    # result['recent_count'] = pre_count[0]
+    # result['recent_time'] = pre_time[0]
+    # result['recent_day'] = pre_day[0]
 
     serializer = BicepsSerializer(data=result)
     if serializer.is_valid():
@@ -252,8 +306,15 @@ def pushup_total(request):
         pid_get = data['pid']
         result = {'Total_count': 0, 'Total_time': 0}
 
-        sum_count = PushUp.objects.filter(pid=pid_get).aggregate(Sum('count'))
-        sum_times = PushUp.objects.filter(pid=pid_get).aggregate(Sum('times'))
+        try:
+            sum_count = PushUp.objects.filter(pid=pid_get).aggregate(Sum('count'))
+        except PushUp.DoesNotExist:
+            result['Total_count'] = 0
+
+        try:
+            sum_times = PushUp.objects.filter(pid=pid_get).aggregate(Sum('times'))
+        except PushUp.DoesNotExist:
+            sum_times['times__sum'] = 0
 
         result['Total_count'] = sum_count['count__sum']
         result['Total_time'] = sum_times['times__sum']
@@ -269,13 +330,41 @@ def pushup_recent(request):
     pid_get = data['pid']
     result = {'recent_count': 0, 'recent_time': 0, 'recent_day': 0}
 
-    pre_count = PushUp.objects.filter(pid=pid_get).values('count').order_by('-created')
-    pre_time = PushUp.objects.filter(pid=pid_get).values('times').order_by('-created')
-    pre_day = PushUp.objects.filter(pid=pid_get).values('day').order_by('-created')
+    if len(PushUp.objects.filter(pid=pid_get).values('count').order_by('-created')) == 0:
+        result['recent_count'] = 0
+    else:
+        result['recent_count'] = PushUp.objects.filter(pid=pid_get).values('count').order_by('-created')[0]['count']
 
-    result['recent_count'] = pre_count[0]['count']
-    result['recent_time'] = pre_time[0]['times']
-    result['recent_day'] = pre_day[0]['day']
+    if len(PushUp.objects.filter(pid=pid_get).values('times').order_by('-created')) == 0:
+        result['recent_time'] = 0
+    else:
+        result['recent_time'] = PushUp.objects.filter(pid=pid_get).values('times').order_by('-created')[0]['times']
+
+    if len(PushUp.objects.filter(pid=pid_get).values('day').order_by('-created')) == 0:
+        result['recent_day'] = 0
+    else:
+        result['recent_day'] = PushUp.objects.filter(pid=pid_get).values('day').order_by('-created')[0]['day']
+
+
+    # data = JSONParser().parse(request)
+    #
+    # pid_get = data['pid']
+    # result = {'recent_count': 0, 'recent_time': 0, 'recent_day': 0}
+    #
+    # pre_count = PushUp.objects.filter(pid=pid_get).values('count').order_by('-created')
+    # pre_time = PushUp.objects.filter(pid=pid_get).values('times').order_by('-created')
+    # pre_day = PushUp.objects.filter(pid=pid_get).values('day').order_by('-created')
+    #
+    # result['recent_count'] = pre_count[0]['count']
+    # result['recent_time'] = pre_time[0]['times']
+    # result['recent_day'] = pre_day[0]['day']
+    #
+    # serializer = BicepsSerializer(data=result)
+    # if serializer.is_valid():
+    #     serializer.save()
+    #     return JsonResponse(serializer.data)
+    # else:
+    #     return HttpResponse("0")
 
     serializer = BicepsSerializer(data=result)
     if serializer.is_valid():
@@ -286,13 +375,60 @@ def pushup_recent(request):
 
 
 @csrf_exempt
-def example(request):
-    if request.method == 'POST' or 'GET':
-        print(request)
-        queryset = BicepsCurl.objects.filter(pid='권드래곤').order_by('-created')
+def biceps_entire(request):
+    if request.method == 'POST':
+        
+        data = JSONParser().parse(request)
+        pid_get = data['pid']
 
-        context = {
-            'queryset': queryset,
-        }
+        queryset = BicepsCurl.objects.filter(pid=pid_get)
 
-        return render(request, 'Account/example.html', context)
+        serializer = BicepsSerializer(queryset, many=True)
+
+        # if serializer.is_valid():
+        #     serializer.save()
+        return JsonResponse(serializer.data, safe=False, status=200)
+        # return JsonResponse(serializer.errors, status=400)
+
+    else:
+        return JsonResponse("Check Request", safe=False, status=400)
+
+
+@csrf_exempt
+def squat_entire(request):
+    if request.method == 'POST':
+
+        data = JSONParser().parse(request)
+        pid_get = data['pid']
+
+        queryset = Squat.objects.filter(pid=pid_get)
+
+        serializer = SquatSerializer(queryset, many=True)
+
+        # if serializer.is_valid():
+        #     serializer.save()
+        return JsonResponse(serializer.data, safe=False, status=200)
+        # return JsonResponse(serializer.errors, status=400)
+
+    else:
+        return JsonResponse("Check Request", safe=False, status=400)
+
+
+@csrf_exempt
+def pushup_entire(request):
+    if request.method == 'POST':
+
+        data = JSONParser().parse(request)
+        pid_get = data['pid']
+
+        queryset = PushUp.objects.filter(pid=pid_get)
+
+        serializer = PushUpSerializer(queryset, many=True)
+
+        # if serializer.is_valid():
+        #     serializer.save()
+        return JsonResponse(serializer.data, safe=False, status=200)
+        # return JsonResponse(serializer.errors, status=400)
+
+    else:
+        return JsonResponse("Check Request", safe=False, status=400)

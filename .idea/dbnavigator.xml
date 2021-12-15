@@ -113,7 +113,7 @@
           <port value="" />
           <database value="" />
           <files>
-            <file path="$PROJECT_DIR$/../prac_restful/db.sqlite3" schema="main" />
+            <file path="$USER_HOME$/prac_restful/db.sqlite3" schema="main" />
           </files>
           <type value="NONE" />
           <user value="" />
