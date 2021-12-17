@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div class="btn-group">
+    <a href="#" class="btn btn-info">Add Record</a>
+</div>
+<p></p>
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">ID</th>
+        <th scope="col">COUNT</th>
+        <th scope="col">TIME</th>
+        <th scope="col">DATE</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for BicepsCurl in object_list %}
+        <tr>
+            <td>{{forloop.counter}}</td>
+            <td><a href="#">{{BicepsCurl.pid}}</a></td>
+            <td><a href="#">{{BicepsCurl.count}}</a></td>
+            <td><a href="#">{{BicepsCurl.times}}</a></td>
+            <td><a href="#">{{BicepsCurl.day}}</a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>

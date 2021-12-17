@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Account',
     'rest_framework',
+    'Web',
 ]
 
 INSTALLED_APPS += ["encrypted_fields"]
