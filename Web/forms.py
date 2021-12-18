@@ -17,3 +17,9 @@ class RegisterForm(forms.ModelForm):
         if cd['password'] != cd['password2']:
             raise forms.ValidationError('Passwords not matched')
         return cd['password2']
+
+
+class CoverForm(forms.Form):
+    title = forms.CharField()
+    top_text = forms.CharField()
+    author = forms.CharField()
