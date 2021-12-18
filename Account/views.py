@@ -27,7 +27,7 @@ def user_list(request):
         # 이미 존재하는 ID
         if Account.objects.filter(pid=data['pid']).exists():
             msg = dict(
-                msg="Already Exist ID"
+                msg="Already Exists"
             )
             return JsonResponse(msg, status=400)
         # 이미 존재하는 nickName
@@ -48,23 +48,23 @@ def user_list(request):
 @csrf_exempt
 def user_login(request):
     data = JSONParser().parse(request)
-    account = data['pid']
-    password = data['pwd']
+    pid_get = data['pid']
+    pwd_get = data['pwd']
 
     try:
-        target = Account.objects.get(pid=account)
+        target = Account.objects.get(pid=pid_get)
     except Account.DoesNotExist:
         return JsonResponse("Check your ID", safe=False, status=400)
 
     if request.method == 'POST':
-        posted_inform = Account.objects.values("pid", "pwd").get(pid=account)
+        posted_inform = Account.objects.values("pid", "pwd").get(pid=pid_get)
         posted_account = posted_inform['pid']
         posted_password = posted_inform['pwd']
 
-        if account == posted_account and password == posted_password:
+        if pid_get == posted_account and pwd_get == posted_password:
             return JsonResponse("Login Success", safe=False, status=200)
 
-        if password != posted_password:
+        if pwd_get != posted_password:
             return JsonResponse("Check your PASSWORD", safe=False, status=400)
     else:
         return JsonResponse("Check Request", safe=False, status=400)
