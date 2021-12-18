@@ -9,4 +9,4 @@ class Cover(models.Model):
     author = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return "title:"+self.title+"/ top_text:"+self.top_text+"/ author:"+self.author
