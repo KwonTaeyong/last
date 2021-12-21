@@ -5,7 +5,7 @@ from .models import *
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ['pid', 'pwd', 'created']
+        fields = ['pid', 'pwd', 'created', 'owner',]
         
         
 class BicepsSerializer(serializers.ModelSerializer):
@@ -26,6 +26,13 @@ class PushUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = PushUp
         fields = '__all__'
+
+
+class PushSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Push
+        fields = '__all__'
+
 
 # 필요 없어서 주석처리
 # class BicepsTotalSerializer(serializers.ModelSerializer):

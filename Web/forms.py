@@ -5,8 +5,8 @@ from Account.models import *
 
 class LoginForm(forms.Form):
     pid = forms.CharField()
-    pwd = forms.CharField()
-    
+    pwd = forms.CharField(widget=forms.PasswordInput)
+
 
 # class RegisterForm(forms.ModelForm):
 #     password = forms.CharField(label='Password', widget=forms.PasswordInput)

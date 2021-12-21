@@ -1,6 +1,8 @@
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate, login, logout
 from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404
 from django import forms
@@ -11,11 +13,8 @@ from Account.models import Account
 from .models import *
 
 
-# Create your views here.
-
-
 @csrf_exempt
-def index(request):
+def exlogin(request):
     if request.method == "POST":
 
         form = LoginForm(request.POST)
@@ -30,25 +29,28 @@ def index(request):
             try:
                 target = Account.objects.get(pid=pid_get)
             except Account.DoesNotExist:
-                return JsonResponse("Check ID", safe=False, status=400)
+                # return JsonResponse("Check ID", safe=False, status=400)
+                return render(request, 'Web/error.html', {'err': 0})
 
             posted_inform = Account.objects.values("pid", "pwd").get(pid=pid_get)
             posted_account = posted_inform['pid']
             posted_password = posted_inform['pwd']
 
-            # try:
-            #     target = Account.objects.get(pid=pid_get)
-                # target = Account.objects.get_object_or_404(pid=pid_get)
-            # except Account.DoesNotExist:
-            #     return JsonResponse("Check ID", safe=False, status=400)
-
-
-
             if pid_get == posted_account and pwd_get == posted_password:
-                return JsonResponse("Login Success", safe=False, status=200)
+                biceps_queryset = BicepsCurl.objects.filter(pid=pid_get)
+                squat_queryset = Squat.objects.filter(pid=pid_get)
+                pushup_queryset = PushUp.objects.filter(pid=pid_get)
+                context = {
+                    'pid': pid_get,
+                    'biceps_queryset': biceps_queryset,
+                    'squat_queryset': squat_queryset,
+                    'pushup_queryset': pushup_queryset,
+                }
+                return render(request, 'Web/main.html', context)
 
             if pwd_get != posted_password:
-                return JsonResponse("Check PASSWORD", safe=False, status=400)
+                # return JsonResponse("Check PASSWORD", safe=False, status=400)
+                return render(request, 'Web/error.html', {'err': 1})
 
             # top_text_get = data['top_text']
             # author_get = data['author']
@@ -73,4 +75,53 @@ def index(request):
     ctx = {
         'form': form,
     }
-    return render(request, 'Web/index.html', ctx)
+    return render(request, 'Web/exlogin.html', ctx)
+
+
+# @csrf_exempt
+# def login(request):
+#     return render(request, 'Web/login.html')
+
+
+def render_login(request):
+    return render(request, 'Web/login.html')
+
+
+def perform_login(request):
+    if request.method != 'POST':
+        return HttpResponse("Not allowed method")
+    else:
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user_obj = authenticate(request, pid=username, pwd=password)
+        if user_obj is not None:
+            login(request, user_obj)
+            return HttpResponseRedirect("admin_dashboard")
+        else:
+            return HttpResponseRedirect(reverse('render_login'))
+
+
+def admin_dashboard(request):
+    return render(request, "Web/admin_dashboard.html")
+
+
+def perform_logout(request):
+    logout(request)
+    return HttpResponseRedirect(reverse('render_login'))
+
+
+def textlist(request):
+    pid_get = request.data['pid']
+    queryset = BicepsCurl.objects.filter(pid=pid_get)
+    context = {
+        'queryset': queryset,
+    }
+    return render(request, 'Web/main.html')
+
+
+def home(request):
+    context = {
+        "메뉴명": "자장면",
+        "가격": "700원"
+    }
+    return render(request, "아무거나2.html", context)

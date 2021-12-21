@@ -6,3 +6,5 @@ from .models import *
 admin.site.register(Account)
 admin.site.register(BicepsCurl)
 admin.site.register(Squat)
+admin.site.register(PushUp)
+

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>Welcome! {{pid}}. Check you RECORDS. </h1>
+    <br><br><br>
+    <h3> BICEPS CURL </h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">   Total Count   </th>
+                <th scope="col">   L-Count   </th>
+                <th scope="col">   R-Count   </th>
+                <th scope="col">   RunTime   </th>
+                <th scope="col">   Date   </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for record in biceps_queryset %}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td><a href="#">{{record.count}}</a></td>
+                <td><a href="#">{{record.count1}}</a></td>
+                <td><a href="#">{{record.count2}}</a></td>
+                <td><a href="#">{{record.times}}</a></td>
+                <td><a href="#">{{record.day}}</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+<br><br><br><br><br>
+    <h3> SQUAT </h3>
+  <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">   Total Count   </th>
+                <th scope="col">   RunTime   </th>
+                <th scope="col">   Date   </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for record in squat_queryset %}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td><a href="#">{{record.count}}</a></td>
+                <td><a href="#">{{record.times}}</a></td>
+                <td><a href="#">{{record.day}}</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+<br><br><br><br><br>
+    <h3> Push Up </h3>
+  <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">   Total Count   </th>
+                <th scope="col">   RunTime   </th>
+                <th scope="col">   Date   </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for record in pushup_queryset %}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td><a href="#">{{record.count}}</a></td>
+                <td><a href="#">{{record.times}}</a></td>
+                <td><a href="#">{{record.day}}</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+</body>
+</html>

@@ -1,26 +1,34 @@
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404, render
 from django.core.exceptions import ObjectDoesNotExist
+from django.core import serializers
+from django.contrib.auth.models import User
 
+from rest_framework import generics, permissions, status, renderers
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework.parsers import JSONParser
+from rest_framework.reverse import reverse
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
 
-from .serializers import AccountSerializer, BicepsSerializer, SquatSerializer, PushUpSerializer
+from .serializers import AccountSerializer, BicepsSerializer, SquatSerializer, PushUpSerializer, PushSerializer
+from .permissions import IsOwnerOrReadOnly
 from .models import *
 
 
-# Create your views here.
 # 회원가입 검증 기능 및 회원리스트 보기
 @csrf_exempt
 def user_list(request):
-
     # 회원목록 확인
     if request.method == 'GET':
         query_set = Account.objects.all()
         serializer = AccountSerializer(query_set, many=True)
         return JsonResponse(serializer.data, safe=False)
-
     # 회원가입
     elif request.method == 'POST':
         data = JSONParser().parse(request)
@@ -31,14 +39,12 @@ def user_list(request):
             )
             return JsonResponse(msg, status=400)
         # 이미 존재하는 nickName
-        elif Account.objects.filter(nick_name=data['nick_name']).exists():
-            msg = dict(
-                msg="Already Exists NickName"
-            )
-
-        # 직렬화
+        # elif Account.objects.filter(nick_name=data['nick_name']).exists():
+        #     msg = dict(
+        #         msg="Already Exists NickName"
+        #     )
+        # 직렬화 및 저장
         serializer = AccountSerializer(data=data)
-
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=201)
@@ -71,7 +77,7 @@ def user_login(request):
 
 
 @csrf_exempt
-def user_target(request, pk):
+def user_target(request, pk, format=None):
     try:
         target = Account.objects.get(pk=pk)
     except target.DoesNotExist:
@@ -103,6 +109,20 @@ def biceps_list(request):
     elif request.method == 'POST':
         data = JSONParser().parse(request)
         serializer = BicepsSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
+
+@csrf_exempt
+def push_list(request):
+    if request.method == 'GET':
+        query_set = Push.objects.all()
+        serializer = PushSerializer(query_set, many=True)
+        return JsonResponse(serializer.data, safe=False)
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = PushSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=201)
@@ -286,11 +306,11 @@ def squat_recent(request):
 def pushup_list(request):
     if request.method == 'GET':
         query_set = PushUp.objects.all()
-        serializer = SquatSerializer(query_set, many=True)
+        serializer = PushUpSerializer(query_set, many=True)
         return JsonResponse(serializer.data, safe=False)
     elif request.method == 'POST':
         data = JSONParser().parse(request)
-        serializer = SquatSerializer(data=data)
+        serializer = PushUpSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=201)
@@ -344,7 +364,6 @@ def pushup_recent(request):
         result['recent_day'] = 0
     else:
         result['recent_day'] = PushUp.objects.filter(pid=pid_get).values('day').order_by('-created')[0]['day']
-
 
     # data = JSONParser().parse(request)
     #
@@ -457,7 +476,89 @@ def record_deleter(request):
             PushUp.objects.filter(pid=pid_get).filter(count=count_get).filter(day__contains=day_get).delete()
             return HttpResponse("Successfully deleted", status=201)
 
+# if exercise.objects.filter(pid=pid_get).filter(day=day_get).filter(times=times_get).filter(count=count_get).exists():
+#     exercise.objects.filter(pid=pid_get).filter(day=day_get).filter(times=times_get).filter(count=count_get).delete()
+#     return JsonResponse("Successfully Done", safe=False, status=201)
+#
+# class SignupView(APIView):
+#     def post(self, request):
+#         permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+#
+#         user = User.objects.create_user(username=request.data['pid'], password=request.data['pwd'])
+#
+#         user.save()
+#
+#         token = Token.objects.create(user=user)
+#         return Response({"Token": token.key})
 
-        # if exercise.objects.filter(pid=pid_get).filter(day=day_get).filter(times=times_get).filter(count=count_get).exists():
-        #     exercise.objects.filter(pid=pid_get).filter(day=day_get).filter(times=times_get).filter(count=count_get).delete()
-        #     return JsonResponse("Successfully Done", safe=False, status=201)
+
+# class TryAccountList(APIView):
+#     """
+#     코드 조각을 모두 보여주거나 새 코드 조각을 만듭니다.
+#     """
+#     def get(self, request, format=None):
+#         queryset = Account.objects.all()
+#         serializer = AccountSerializer(queryset, many=True)
+#         return Response(serializer.data)
+#
+#     def post(self, request, format=None):
+#         serializer = AccountSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#
+#
+# class TryAccountDetail(APIView):
+#     """
+#     코드 조각 조회, 업데이트, 삭제
+#     """
+#     def get_object(self, pk):
+#         try:
+#             return Account.objects.get(pk=pk)
+#         except Account.DoesNotExist:
+#             raise Http404
+#
+#     def get(self, request, pk, format=None):
+#         queryset = self.get_object(pk)
+#         serializer = AccountSerializer(queryset)
+#         return Response(serializer.data)
+#
+#     def put(self, request, pk, format=None):
+#         queryset = self.get_object(pk)
+#         serializer = AccountSerializer(queryset, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#
+#     def delete(self, request, pk, format=None):
+#         queryset = self.get_object(pk)
+#         queryset.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# class TryAccountList(generics.ListCreateAPIView):
+#     queryset = Account.objects.all()
+#     serializer_class = AccountSerializer
+#     authentication_classes = [JSONWebTokenAuthentication]
+#     permission_classes = [IsAuthenticated]
+#
+#     def perform_create(self, serializer):
+#         serializer.save(owner=self.request.user)
+#
+#
+# class TryAccountDetail(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Account.objects.all()
+#     serializer_class = AccountSerializer
+#     permission_classes = (permissions.IsAuthenticatedOrReadOnly,IsOwnerOrReadOnly,)
+#
+#
+# class TryAccountHighlight(generics.GenericAPIView):
+#     queryset = Account.objects.all()
+#     renderer_classes = (renderers.StaticHTMLRenderer,)
+#
+#     def get(self, request, *args, **kwargs):
+#         snippet = self.get_object()
+#         return Response(Account.highlighted)
+
