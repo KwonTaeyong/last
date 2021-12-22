@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_auth.registration',
     'Web',
+    'common',
 ]
 
 INSTALLED_APPS += ["encrypted_fields"]
@@ -174,7 +175,6 @@ JWT_AUTH = {
     'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=28),
 }
 
-# AUTH_USER_MODEL = 'Account.아이디'
 
 #ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_REQUIRED = False
@@ -184,3 +184,9 @@ ACCOUNT_EMAIL_VERIFICATION = "none"
 
 REST_USE_JWT = True
 ACCOUNT_LOGOUT_ON_GET = True
+
+# 로그인 성공후 이동하는 URL
+LOGIN_REDIRECT_URL = '/'
+
+# 로그아웃시 이동하는 URL
+LOGOUT_REDIRECT_URL = '/'

@@ -4,8 +4,18 @@ from Account.models import *
 
 
 class LoginForm(forms.Form):
-    pid = forms.CharField()
-    pwd = forms.CharField(widget=forms.PasswordInput)
+    pid = forms.CharField(label='id')
+    pwd = forms.CharField(widget=forms.PasswordInput, label='password')
+
+
+class JoinForm(forms.Form):
+    pid = forms.CharField(label='id')
+    pwd = forms.CharField(widget=forms.PasswordInput, label='password')
+
+
+class DeleteForm(forms.Form):
+    pid = forms.CharField(label='id')
+    pwd = forms.CharField(widget=forms.PasswordInput, label='password')
 
 
 # class RegisterForm(forms.ModelForm):

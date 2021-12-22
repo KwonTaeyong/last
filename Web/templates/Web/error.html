@@ -6,14 +6,18 @@
 </head>
 <body>
 {% block content %}
-    {% if 'err==1' %}
-        <h6> Login Failed. Return to Login page in 3second. </h6>
-        <p> Password is not correct. Check your Password. </p>
-        <meta http-equiv="refresh" content="2; {% url 'exlogin' %}">
-    {% elif 'err==0' %}
-        <h6> Login Failed. Return to Login page in 3second. </h6>
+    {% if '{{err}} == 1' %}
+        <h1> Function Failed. Return to Login page in 3second. </h1>
+        <p> Check you ID or PASSWORD. </p>
+        <meta http-equiv="refresh" content="3; {% url 'exlogin' %}">
+    {% elif '{{err}} == 0' %}
+        <h1> LOGIN Failed. Return to Login page in 3second. </h1>
         <p> ID does not exists or not correct. Check your ID. </p>
-        <meta http-equiv="refresh" content="2; {% url 'exlogin' %}">
+
+    {% elif '{{err}} == 3' %}
+        <h1> JOIN Failed. Return to Login page in 3second. </h1>
+        <p> ID already Exists </p>
+        <meta http-equiv="refresh" content="3; {% url 'exlogin' %}">
     {% endif %}
 {% endblock %}
 </body>

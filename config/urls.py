@@ -15,12 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from Account.views import *
 # from rest_framework_jwt.views import obtain_jwt_token, verify_jwt_token, refresh_jwt_token
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('Account/', include('Account.urls')),
     path('Web/', include('Web.urls')),
+    path('common/', include('common.urls')),
+    path('', user_list, name='index'),
     # path('example/', example)
 ]
 

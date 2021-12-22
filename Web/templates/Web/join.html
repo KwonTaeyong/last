@@ -7,20 +7,18 @@
 </head>
 <body>
 <div class="btn-group">
-    <a href="{% url 'join' %}" class="btn btn-info"> Join </a>
-</div>
-<div class="btn-group">
-    <a href="{% url 'delete' %}" class="btn btn-info"> Withdrawal </a>
-</div>
+    <a href="{% url 'exlogin' %}" class="btn btn-info"> login </a>
+    </div>
+    <h1> JOIN US </h1>
 <div class = "container">
-    <form action="" method="post">
+    <form action="{% url 'performjoin' %}" method="post">
     {% csrf_token %}
         <table>
       {{ form }}
         </table>
-    <input type="submit" value=" Login ">
+    <input type="submit" value=" Join ">
 </form>
 </div>
-
+</div>
 </body>
 </html>
