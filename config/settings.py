@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_auth.registration',
     'Web',
-    'common',
 ]
 
 INSTALLED_APPS += ["encrypted_fields"]
@@ -96,9 +95,9 @@ DATABASES = {
 
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'test',
-        'USER': 'munongi',
+        'USER': 'gdragon',
         'PASSWORD': '1234',
-        'HOST': '',
+        'HOST': '192.168.0.94',
         'PORT': '',
     }
 }
@@ -126,9 +125,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ko-kr'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
@@ -141,10 +140,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -177,16 +174,16 @@ JWT_AUTH = {
 
 
 #ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_REQUIRED = False
+# ACCOUNT_EMAIL_REQUIRED = False
 
 #ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_EMAIL_VERIFICATION = "none"
+# ACCOUNT_EMAIL_VERIFICATION = "none"
 
-REST_USE_JWT = True
-ACCOUNT_LOGOUT_ON_GET = True
+# REST_USE_JWT = True
+# ACCOUNT_LOGOUT_ON_GET = True
 
-# 로그인 성공후 이동하는 URL
-LOGIN_REDIRECT_URL = '/'
+# # 로그인 성공후 이동하는 URL
+# LOGIN_REDIRECT_URL = '/'
 
-# 로그아웃시 이동하는 URL
-LOGOUT_REDIRECT_URL = '/'
+# # 로그아웃시 이동하는 URL
+# LOGOUT_REDIRECT_URL = '/'

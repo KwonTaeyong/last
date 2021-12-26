@@ -15,5 +15,6 @@ urlpatterns = [
     path('delete/', views.exdelete, name='delete'),
     path('performjoin/', views.perform_join, name='performjoin'),
     path('performdelete/', views.perform_delete, name='performdelete'),
-    # path('login/', login, name='login'),
-    ]
+    path('introduce/', views.introduce, name='introduce'),
+    path('index/', views.index, name='index'),
+ ]

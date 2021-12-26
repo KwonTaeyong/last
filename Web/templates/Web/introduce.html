@@ -24,20 +24,6 @@
   <link href='{% static "css/style.css" %}' rel="stylesheet" />
   <!-- responsive style -->
   <link href='{% static "css/responsive.css" %}' rel="stylesheet" />
-  <style>
-    h1{
-      text-align: center;
-      font-size: 50px;
-      padding: 20px;
-    }
-    p{
-      text-align: center;
-      padding: 10px;
-    }
-    h4{
-      padding: 30px;
-    }
-  </style>
 </head>
 
 <body class="sub_page">
@@ -83,86 +69,38 @@
   </div>
 
   <!-- about section -->
-  <body>
-    <p></p>
-    <p>
-        <a href="{% url 'exlogin' %}" class="btn btn-info"> Logout </a>
-        <a href="{% url 'delete' %}" class="btn btn-info"> Withdrawal </a>
-    </p>
-        <h1>Welcome! {{pid}} Check you RECORDS. </h1>
-        <br><br><br>
-        <h3> BICEPS CURL </h3>
-            <table class="table">
-                <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">   Total Count   </th>
-                    <th scope="col">   L-Count   </th>
-                    <th scope="col">   R-Count   </th>
-                    <th scope="col">   RunTime   </th>
-                    <th scope="col">   Date   </th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for record in biceps_queryset %}
-                <tr>
-                    <td>{{forloop.counter}}</td>
-                    <td><a href="#">{{record.count}}</a></td>
-                    <td><a href="#">{{record.count1}}</a></td>
-                    <td><a href="#">{{record.count2}}</a></td>
-                    <td><a href="#">{{record.times}}</a></td>
-                    <td><a href="#">{{record.day}}</a></td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-    <br><br><br><br><br>
-        <h3> SQUAT </h3>
-      <table class="table">
-                <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">   Total Count   </th>
-                    <th scope="col">   RunTime   </th>
-                    <th scope="col">   Date   </th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for record in squat_queryset %}
-                <tr>
-                    <td>{{forloop.counter}}</td>
-                    <td><a href="#">{{record.count}}</a></td>
-                    <td><a href="#">{{record.times}}</a></td>
-                    <td><a href="#">{{record.day}}</a></td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-    <br><br><br><br><br>
-        <h3> Push Up </h3>
-      <table class="table">
-                <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">   Total Count   </th>
-                    <th scope="col">   RunTime   </th>
-                    <th scope="col">   Date   </th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for record in pushup_queryset %}
-                <tr>
-                    <td>{{forloop.counter}}</td>
-                    <td><a href="#">{{record.count}}</a></td>
-                    <td><a href="#">{{record.times}}</a></td>
-                    <td><a href="#">{{record.day}}</a></td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            <h4></h4>
-    </body>
-    </html>
+  <section class="about_section layout_padding">
+    <div class="side_img">
+      <img src='{% static "images/side-img.png" %}' alt="" />
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="img_container">
+            <div class="img-box b1">
+              <img src='{% static "images/b-4.jpg" %}' alt="" />
+            </div>
+            <div class="img-box b2">
+              <img src='{% static "images/b-2.jpg" %}' alt="" />
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="detail-box">
+            <div class="heading_container">
+              <h3>
+                INTRODUCE
+              </h3>
+              <p>
+                코로나 여파로 인한 홈트레이닝 수요가 증가했습니다 집에서도 안전하게 운동을 
+                할 수 있도록 AIEA를 통한 알맞는 운동자세 및 자신의 운동능력을 확인해보세요.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- end about section -->
 

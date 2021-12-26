@@ -218,3 +218,15 @@ def perform_delete(request):
 
             except Account.DoesNotExist:
                 return redirect('exlogin')
+
+    
+def index(request):
+    form = LoginForm()
+
+    ctx = {
+            'form': form,
+        }
+    return render(request, 'Web/index.html', ctx)
+
+def introduce(request):
+    return render(request, 'Web/introduce.html')

@@ -5,7 +5,7 @@ from .models import *
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ['pid', 'pwd', 'created', 'owner',]
+        fields = '__all__'
         
         
 class BicepsSerializer(serializers.ModelSerializer):
