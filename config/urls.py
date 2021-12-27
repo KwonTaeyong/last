@@ -15,13 +15,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from user.views import *
+from Web.models import *
+
+import Web.views
 
 urlpatterns = [
     # base URLS
     path('admin/', admin.site.urls),
-    path('', include('user.urls')),
-
+    path('User/', include('user.urls')),
+    path('Web/', include('Web.urls')),
+    path('', Web.views.index, name='index'),
     # django REST Framework API URL
-    path('', include("rest_framework.urls", namespace='rest_framework')),
-
 ]
+
+# urlpatterns += [
+#     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+# ]

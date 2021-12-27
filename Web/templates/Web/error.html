@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% block content %}
+    {% if '{{err}} == 1' %}
+        <h1> Function Failed. Return to Login page in 3second. </h1>
+        <p> Check you ID or PASSWORD. </p>
+        <meta http-equiv="refresh" content="3; {% url 'index' %}#signup">
+    {% elif '{{err}} == 0' %}
+        <h1> LOGIN Failed. Return to Login page in 3second. </h1>
+        <p> ID does not exists or not correct. Check your ID. </p>
+
+    {% elif '{{err}} == 3' %}
+        <h1> JOIN Failed. Return to Login page in 3second. </h1>
+        <p> ID already Exists </p>
+        <meta http-equiv="refresh" content="3; {% url 'index' %}">
+    {% endif %}
+{% endblock %}
+</body>
+</html>
