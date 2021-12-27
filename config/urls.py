@@ -22,5 +22,6 @@ urlpatterns = [
     path('', include('user.urls')),
 
     # django REST Framework API URL
-    path('api-auth/', include("rest_framework.urls")),
+    path('', include("rest_framework.urls", namespace='rest_framework')),
+
 ]
